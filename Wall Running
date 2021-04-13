@@ -1,0 +1,129 @@
+//Made my Jerry Tutorials Enjoy ;)
+//Keep in mind you do not have to credit me and I really do not want you to do just read the code and watch the video and learn the logic behind this!
+//WallRun//
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+public class WallRun : MonoBehaviour
+{
+    [Header("Bools")]
+    public int RayCastPower;
+    public bool isWallLeft;
+    public bool isWallRight;
+    public bool isWallRunning;
+
+    public GameObject Orientation;
+    public Vector3 WallRunForwareForce = new Vector3(0, 0, 0);
+    public Rigidbody rb;
+
+
+    public float WallRunTime;
+    public Vector3 ForceWhenFallingAfterTime;
+    public Camera Cam;
+    public float camTiltTime;
+    public float CamTilt;
+    public float NormalCameraTilt;
+
+    public string WallRunTag;
+    public RaycastHit leftwallhit;
+    public RaycastHit rightwallhit;
+    public float wallRunJumpForce;
+    public Vector3 ConstantUpForce;
+
+
+    public float FOVtime;
+    public float WallRunFOV;
+    public float NormalFOV;
+
+    public float tilt { get; private set; }
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        StopWallRun();
+        StopCoroutine(StopWallRunAfterTime());
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == WallRunTag)
+        {
+            StartCoroutine(StopWallRunAfterTime());
+            StartWallRun();
+        }
+    }
+    private void StartWallRun()
+    {
+        if (isWallLeft)
+            tilt = Mathf.Lerp(tilt, -CamTilt, camTiltTime * Time.deltaTime);
+        else if (isWallRight)
+            tilt = Mathf.Lerp(tilt, CamTilt, camTiltTime * Time.deltaTime);
+
+
+        Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, WallRunFOV, FOVtime * Time.deltaTime);
+
+        isWallRunning = true;
+        StartCoroutine(StopWallRunAfterTime());
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (isWallLeft)
+            {
+                Vector3 wallRunJumpDirectiom = transform.up + leftwallhit.normal;
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                rb.AddForce(wallRunJumpDirectiom * wallRunJumpForce * 100, ForceMode.Force);
+            }
+            if (isWallRight)
+            {
+                Vector3 wallRunJumpDirectiom = transform.up + rightwallhit.normal;
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                rb.AddForce(wallRunJumpDirectiom * wallRunJumpForce * 100, ForceMode.Force);
+            }
+        }
+    }
+
+    private void StopWallRun()
+    {
+        Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, NormalFOV, FOVtime * Time.deltaTime);
+        tilt = Mathf.Lerp(tilt, 0, camTiltTime * Time.deltaTime);
+        isWallRight = false;
+        isWallLeft = false;
+        isWallRunning = false;
+        StopCoroutine(StopWallRunAfterTime());
+    }
+    private void CheckWall()
+    {
+        isWallRight = (Physics.Raycast(Orientation.transform.position, Orientation.transform.right, out rightwallhit, RayCastPower));
+        isWallLeft = (Physics.Raycast(Orientation.transform.position, -Orientation.transform.right, out rightwallhit, RayCastPower));
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        if (!isWallLeft && !isWallRight && !isWallRunning)
+        {
+            StopWallRun();
+        }
+        CheckWall();
+        if (isWallRunning)
+        {
+            if (isWallLeft)
+            {
+                StartWallRun();
+                Debug.Log("WallRunning on the left");
+                rb.AddForce(ConstantUpForce);
+            }
+            if (isWallRight)
+            {
+                StartWallRun();
+                Debug.Log("WallRunning on the right");
+                rb.AddForce(ConstantUpForce);
+            }
+        }
+    }
+    IEnumerator StopWallRunAfterTime()
+    {
+        yield return new WaitForSeconds(WallRunTime);
+        rb.AddForce(ForceWhenFallingAfterTime);
+    }
+}
