@@ -49,7 +49,6 @@ public class WallRun : MonoBehaviour
     {
         if (collision.gameObject.tag == WallRunTag)
         {
-            rb.AddForce(WallRunForwardForce);
             StartCoroutine(StopWallRunAfterTime());
             StartWallRun();
         }
@@ -113,12 +112,14 @@ public class WallRun : MonoBehaviour
         {
             if (isWallLeft)
             {
+                rb.AddForce(WallRunForwardForce);
                 StartWallRun();
                 Debug.Log("WallRunning on the left");
                 rb.AddForce(ConstantUpForce);
             }
             if (isWallRight)
             {
+                rb.AddForce(WallRunForwardForce);
                 StartWallRun();
                 Debug.Log("WallRunning on the right");
                 rb.AddForce(ConstantUpForce);
