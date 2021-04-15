@@ -11,9 +11,8 @@ public class WallRun : MonoBehaviour
     public bool isWallLeft;
     public bool isWallRight;
     public bool isWallRunning;
-
     public GameObject Orientation;
-    public Vector3 WallRunForwareForce = new Vector3(0, 0, 0);
+    public Vector3 WallRunForwardForce = new Vector3(0, 0, 0);
     public Rigidbody rb;
 
 
@@ -39,7 +38,7 @@ public class WallRun : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -50,6 +49,7 @@ public class WallRun : MonoBehaviour
     {
         if (collision.gameObject.tag == WallRunTag)
         {
+            rb.AddForce(WallRunForwardForce);
             StartCoroutine(StopWallRunAfterTime());
             StartWallRun();
         }
@@ -100,6 +100,10 @@ public class WallRun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.S) && isWallRunning)
+        {
+            rb.AddForce(0, -100, 0);
+        }
         if (!isWallLeft && !isWallRight && !isWallRunning)
         {
             StopWallRun();
