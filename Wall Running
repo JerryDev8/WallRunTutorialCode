@@ -28,7 +28,7 @@ public class WallRun : MonoBehaviour
     public RaycastHit rightwallhit;
     public float wallRunJumpForce;
     public Vector3 ConstantUpForce;
-
+    public Vector3 downForceWhenGoingBackWards;
 
     public float FOVtime;
     public float WallRunFOV;
@@ -102,7 +102,7 @@ public class WallRun : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S) && isWallRunning)
         {
-            rb.AddForce(0, -100, 0);
+            rb.AddForce(downForceWhenGoingBackWards);
         }
         if (!isWallLeft && !isWallRight && !isWallRunning)
         {
