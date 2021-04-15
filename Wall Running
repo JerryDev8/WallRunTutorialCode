@@ -7,35 +7,46 @@ using UnityEngine;
 public class WallRun : MonoBehaviour
 {
     [Header("Bools")]
-    public int RayCastPower;
     public bool isWallLeft;
     public bool isWallRight;
     public bool isWallRunning;
 
+    [Header("Particle")]
+    public GameObject Particle1;
+    public GameObject Particle2;
+    public GameObject Particle3;
+    public GameObject Particle4;
 
+    [Header("Strings")]
+    public string WallRunTag;
+
+    [Header("Other")]
+    public PlayerMove PM;
     public GameObject Orientation;
-    public Vector3 WallRunForwardForce;
     public Rigidbody rb;
-    public Vector3 SlowPlayerDownAfterTime;
-
-
-    public float WallRunTime;
-    public Vector3 ForceWhenFallingAfterTime;
     public Camera Cam;
+    public RaycastHit leftwallhit;
+    public RaycastHit rightwallhit;
+
+    [Header("Floats")]
+    public float WallRunSpeed;
+    public float wallRunJumpForce;
+    public float WallRunTime;
     public float camTiltTime;
     public float CamTilt;
     public float NormalCameraTilt;
-
-    public string WallRunTag;
-    public RaycastHit leftwallhit;
-    public RaycastHit rightwallhit;
-    public float wallRunJumpForce;
-    public Vector3 ConstantUpForce;
-    public Vector3 downForceWhenGoingBackWards;
-
     public float FOVtime;
     public float WallRunFOV;
     public float NormalFOV;
+    [Header("Ints")]
+    public int RayCastPower;
+    [Header("Vectors")]
+    public Vector3 WallRunForwardForce;
+    public Vector3 SlowPlayerDownAfterTime;
+    public Vector3 ForceWhenFallingAfterTime;
+    public Vector3 ConstantUpForce;
+    public Vector3 downForceWhenGoingBackWards;
+
 
     public float tilt { get; private set; }
     // Start is called before the first frame update
@@ -45,6 +56,7 @@ public class WallRun : MonoBehaviour
     }
     private void OnCollisionExit(Collision collision)
     {
+        PM.moveSpeed = 15;
         StopWallRun();
         StopCoroutine(StopWallRunAfterTime());
     }
@@ -54,6 +66,14 @@ public class WallRun : MonoBehaviour
         {
             StartCoroutine(StopWallRunAfterTime());
             StartWallRun();
+        }
+        if(collision.gameObject.tag == WallRunTag && isWallRunning)
+        {
+            PM.moveSpeed = WallRunSpeed;
+            Particle1.SetActive(true);
+            Particle2.SetActive(true);
+            Particle3.SetActive(true);
+            Particle4.SetActive(true);
         }
     }
     private void StartWallRun()
@@ -131,6 +151,11 @@ public class WallRun : MonoBehaviour
     {
         rb.AddForce(WallRunForwardForce);
         yield return new WaitForSeconds(WallRunTime);
+        Particle1.SetActive(false);
+        Particle2.SetActive(false);
+        Particle3.SetActive(false);
+        Particle4.SetActive(false);
+        //rb.AddForce(WallRunForwardForce);
         rb.AddForce(SlowPlayerDownAfterTime);
         rb.AddForce(ForceWhenFallingAfterTime);
     }
