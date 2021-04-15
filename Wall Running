@@ -11,9 +11,12 @@ public class WallRun : MonoBehaviour
     public bool isWallLeft;
     public bool isWallRight;
     public bool isWallRunning;
+
+
     public GameObject Orientation;
-    public Vector3 WallRunForwardForce = new Vector3(0, 0, 0);
+    public Vector3 WallRunForwardForce;
     public Rigidbody rb;
+    public Vector3 SlowPlayerDownAfterTime;
 
 
     public float WallRunTime;
@@ -112,14 +115,12 @@ public class WallRun : MonoBehaviour
         {
             if (isWallLeft)
             {
-                rb.AddForce(WallRunForwardForce);
                 StartWallRun();
                 Debug.Log("WallRunning on the left");
                 rb.AddForce(ConstantUpForce);
             }
             if (isWallRight)
             {
-                rb.AddForce(WallRunForwardForce);
                 StartWallRun();
                 Debug.Log("WallRunning on the right");
                 rb.AddForce(ConstantUpForce);
@@ -128,7 +129,9 @@ public class WallRun : MonoBehaviour
     }
     IEnumerator StopWallRunAfterTime()
     {
+        rb.AddForce(WallRunForwardForce);
         yield return new WaitForSeconds(WallRunTime);
+        rb.AddForce(SlowPlayerDownAfterTime);
         rb.AddForce(ForceWhenFallingAfterTime);
     }
 }
