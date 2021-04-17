@@ -10,6 +10,7 @@ public class WallRun : MonoBehaviour
     public bool isWallLeft;
     public bool isWallRight;
     public bool isWallRunning;
+    public bool canJumpOffWall;
 
     [Header("Particle")]
     public GameObject Particle1;
@@ -38,6 +39,8 @@ public class WallRun : MonoBehaviour
     public float FOVtime;
     public float WallRunFOV;
     public float NormalFOV;
+    public float SlowDownPlayerAfterTime;
+    public float jumpOffWallTime;
 
     [Header("Ints")]
     public int RayCastPower;
@@ -46,13 +49,12 @@ public class WallRun : MonoBehaviour
     public Vector3 ForceWhenFallingAfterTime;
     public Vector3 ConstantUpForce;
     public Vector3 downForceWhenGoingBackWards;
-    public Vector3 SlowDownPlayerAfterTime;
-    public Vector3 ForwardForce;
+
     public float tilt { get; private set; }
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -64,10 +66,11 @@ public class WallRun : MonoBehaviour
     {
         if (collision.gameObject.tag == WallRunTag)
         {
+            canJumpOffWall = true;
             StartCoroutine(StopWallRunAfterTime());
             StartWallRun();
         }
-        if(collision.gameObject.tag == WallRunTag && isWallRunning)
+        if (collision.gameObject.tag == WallRunTag && isWallLeft || collision.gameObject.tag == WallRunTag && isWallRight)
         {
             PM.moveSpeed = WallRunSpeed;
             Particle1.SetActive(true);
@@ -88,12 +91,13 @@ public class WallRun : MonoBehaviour
 
         isWallRunning = true;
         StartCoroutine(StopWallRunAfterTime());
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && canJumpOffWall)
         {
+            StartCoroutine(JumpOffWall());
             if (isWallLeft)
             {
                 Vector3 wallRunJumpDirectiom = transform.up + leftwallhit.normal;
-                rb.velocity = new Vector3(rb.velocity.x, 0, 0);
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
                 rb.AddForce(wallRunJumpDirectiom * wallRunJumpForce * 100, ForceMode.Force);
             }
             if (isWallRight)
@@ -137,7 +141,6 @@ public class WallRun : MonoBehaviour
             {
                 StartWallRun();
                 Debug.Log("WallRunning on the left");
-                rb.velocity = rb.velocity + (ForwardForce);
                 rb.AddForce(ConstantUpForce);
             }
             if (isWallRight)
@@ -145,8 +148,6 @@ public class WallRun : MonoBehaviour
                 StartWallRun();
                 Debug.Log("WallRunning on the right");
                 rb.AddForce(ConstantUpForce);
-                rb.velocity = rb.velocity + (ForwardForce);
-                rb.velocity = rb.velocity - (SlowDownPlayerAfterTime);
             }
         }
     }
@@ -157,7 +158,13 @@ public class WallRun : MonoBehaviour
         Particle2.SetActive(false);
         Particle3.SetActive(false);
         Particle4.SetActive(false);
-        rb.velocity = rb.velocity - (SlowDownPlayerAfterTime);
+        WallRunSpeed = SlowDownPlayerAfterTime;
         rb.AddForce(ForceWhenFallingAfterTime);
+    }
+    IEnumerator JumpOffWall()
+    {
+        canJumpOffWall = false;
+        yield return new WaitForSeconds(jumpOffWallTime);
+        canJumpOffWall = true;
     }
 }
